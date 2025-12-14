@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import chat, ingest
+from routers import chat, ingest, grading
 from services.chroma_db import check_db_connection
 import contextlib
 
@@ -34,6 +34,7 @@ app.add_middleware(
 # Include Routers
 app.include_router(chat.router)
 app.include_router(ingest.router)
+app.include_router(grading.router)
 
 @app.get("/")
 def read_root():
