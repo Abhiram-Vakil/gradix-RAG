@@ -6,19 +6,35 @@ const ChatBot = () => {
     { id: 1, text: "Hello! I'm Gradix AI. Ask me anything about your uploaded subjects or general questions.", sender: 'ai' },
   ]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMsg = { id: Date.now(), text: input, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMsg = { id: Date.now() + 1, text: "I'm a placeholder AI. My brain isn't connected yet!", sender: 'ai' };
+    try {
+      const response = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
+      });
+
+      const data = await response.json();
+      const aiMsg = { id: Date.now() + 1, text: data.response, sender: 'ai' };
       setMessages(prev => [...prev, aiMsg]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMsg = { id: Date.now() + 1, text: "Sorry, I couldn't reach the backend. Is it running?", sender: 'ai' };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const clearChat = () => {
