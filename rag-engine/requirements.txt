@@ -5,3 +5,4 @@ chromadb
 sentence-transformers
 python-multipart
 python-dotenv
+pymupdf
