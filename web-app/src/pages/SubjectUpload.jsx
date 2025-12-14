@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Loader2, Info } from 'lucide-react';
 import axios from 'axios';
 
 const SubjectUpload = () => {
@@ -68,86 +68,101 @@ const SubjectUpload = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col items-center">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-base-content">Subject Upload</h1>
-        <p className="text-base-content/70 mt-2">Upload reference materials (textbooks, notes) or paste content to train the grader.</p>
+    <div className="space-y-8 animate-fade-in-up">
+      <div className="text-center max-w-2xl mx-auto">
+        <h1 className="text-4xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+            Knowledge Ingestion
+        </h1>
+        <p className="text-lg text-base-content/60">
+            Upload course materials (PDF) or paste syllabus text to train the grading AI.
+        </p>
       </div>
 
-      <div className="card w-full max-w-2xl bg-base-200 shadow-xl">
-        <div className="card-body items-center text-center">
-          
-          {/* Direct Text Input */}
-          <div className="form-control w-full max-w-md flex flex-col gap-2 items-center justify-center">
-             <label className="label justify-center">
-              <span className="label-text font-bold">Paste Text Content</span>
-            </label>
-            <textarea
-              className="textarea textarea-bordered h-24 w-full"
-              placeholder="Paste text content here..."
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-            ></textarea> 
-          </div>
-
-          <div className="divider w-full">OR</div>
-
-          {/* File Upload Area */}
-          <div className="form-control w-full max-w-md flex flex-col gap-2 items-center justify-center">
-            <label className="label justify-center">
-              <span className="label-text font-bold">Upload Documents (PDF, TXT)</span>
-            </label>
-            <input 
-              type="file" 
-              className="file-input file-input-bordered file-input-primary w-full" 
-              multiple
-              accept=".txt,.pdf,.docx"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          {/* File List */}
-          {files.length > 0 && (
-            <div className="mt-6 w-full max-w-md">
-              <h3 className="text-sm font-bold opacity-70 mb-3">Selected Files ({files.length})</h3>
-              <div className="grid gap-2">
-                {files.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-base-100 rounded-lg text-left">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <FileText size={18} className="text-primary flex-shrink-0" />
-                      <span className="text-sm truncate">{file.name}</span>
-                      <span className="text-xs opacity-50 flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
-                    </div>
-                    <button 
-                      onClick={() => removeFile(index)} 
-                      className="btn btn-ghost btn-xs btn-circle text-error"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="card-actions justify-center mt-8 w-full flex-col gap-4">
-            <button 
-              className="btn btn-primary px-12"
-              onClick={handleUpload}
-              disabled={(!textContent && files.length === 0) || isUploading}
-            >
-              {isUploading ? <Upload size={18} className="animate-bounce"/> : <Upload size={18} />}
-              {isUploading ? 'Processing...' : 'Upload & Ingest'}
-            </button>
-
-            {isUploading && (
-                <div className="w-full max-w-xs flex flex-col gap-1">
-                    <progress className="progress progress-primary w-full" value={uploadProgress} max="100"></progress>
-                    <span className="text-xs opacity-70">{statusMessage} {uploadProgress}%</span>
+      <div className="grid md:grid-cols-2 gap-8 items-start">
+        {/* Left Col: File Upload */}
+        <div className="card bg-base-200/50 backdrop-blur border border-base-content/5 shadow-xl">
+            <div className="card-body">
+                <h2 className="card-title flex items-center gap-2 text-xl mb-4">
+                    <FileText className="text-primary"/> Upload Document
+                </h2>
+                
+                <div className="form-control w-full">
+                    <label className="label">
+                        <span className="label-text font-medium">Select PDF Files</span>
+                    </label>
+                    <input 
+                        type="file" 
+                        accept=".pdf" 
+                        multiple 
+                        className="file-input file-input-bordered file-input-primary w-full h-12" 
+                        onChange={handleFileChange}
+                    />
+                    <label className="label">
+                        <span className="label-text-alt text-base-content/50">Supported: .pdf (Max 10MB)</span>
+                    </label>
                 </div>
-            )}
-          </div>
+
+                <div className="divider text-sm font-medium opacity-50">OR</div>
+
+                <div className="form-control w-full">
+                    <label className="label">
+                        <span className="label-text font-medium">Paste Text Content</span>
+                    </label>
+                    <textarea 
+                        className="textarea textarea-bordered h-40 text-base leading-relaxed focus:border-primary transition-colors" 
+                        placeholder="Paste raw text from syllabus or notes here..."
+                        value={textContent}
+                        onChange={(e) => setTextContent(e.target.value)}
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        {/* Right Col: Status & Actions */}
+        <div className="space-y-6">
+            <div className="card bg-base-100 border border-base-content/10 shadow-lg">
+                <div className="card-body items-center text-center py-12">
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-all duration-500 ${isUploading ? 'bg-primary/10 text-primary scale-110' : 'bg-base-200 text-base-content/30'}`}>
+                        {isUploading ? <Loader2 size={40} className="animate-spin" /> : <Upload size={40} />}
+                    </div>
+                    
+                    <h3 className="text-xl font-bold mb-1">
+                        {isUploading ? 'Processing Content...' : 'Ready to Ingest'}
+                    </h3>
+                    <p className="text-sm text-base-content/60 max-w-xs">
+                        {isUploading 
+                            ? 'Extracting text, cleaning, chunking, and vectorizing...' 
+                            : 'Select files or paste text on the left to begin.'}
+                    </p>
+
+                    {/* Progress Bar */}
+                    {isUploading && (
+                        <div className="w-full max-w-xs mt-6 space-y-2">
+                            <progress className="progress progress-primary w-full h-3" value={uploadProgress} max="100"></progress>
+                            <div className="flex justify-between text-xs font-semibold opacity-70">
+                                <span>{statusMessage}</span>
+                                <span>{uploadProgress}%</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Action Button */}
+                    <button 
+                        className={`btn btn-primary btn-lg w-full max-w-xs mt-8 shadow-lg shadow-primary/20 ${isUploading ? 'loading' : ''}`}
+                        onClick={handleUpload}
+                        disabled={(!textContent && files.length === 0) || isUploading}
+                    >
+                        {!isUploading && <Upload className="mr-2" size={20} />}
+                        {isUploading ? 'Ingesting...' : 'Start Ingestion'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Hint Card */}
+            <div className="alert bg-base-200/50 shadow-sm border border-base-content/5 text-sm">
+                <Info size={20} className="text-info" />
+                <span>Uploaded content will immediately be available for the Auto-Grader and ChatBot.</span>
+            </div>
         </div>
       </div>
     </div>

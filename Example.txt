@@ -1,0 +1,11 @@
+ Question
+ Explain features of magnetic tapes.Describe its features with advantages and disadvantages.
+
+Student_answer
+Magnetic tapes are cheap and can store a lot of data. They are mostly used for backups. But they are slow and not suitable for daily use.`
+
+Rubric
+1. Features of magnetic tape: 4 mark
+2. At least 1 advantages explained: 1 mark
+3. At least 1 disadvantages explained: 1  mark
+Total: 6 marks
